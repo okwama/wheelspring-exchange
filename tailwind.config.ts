@@ -47,6 +47,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        automotive: {
+          navy: "hsl(var(--automotive-navy))",
+          silver: "hsl(var(--automotive-silver))",
+          dark: "hsl(var(--automotive-dark))",
+          accent: "hsl(var(--automotive-accent))",
+          success: "hsl(var(--automotive-success))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
