@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CarImageGallery from "@/components/CarImageGallery";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,53 +18,69 @@ import {
   Shield,
   Phone,
   Mail,
-  Star
+  Star,
+  Loader2
 } from "lucide-react";
-import carSedan from "@/assets/car-sedan-luxury.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const CarDetails = () => {
   const { id } = useParams();
+  const [car, setCar] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Mock data - in real app, fetch based on ID
-  const car = {
-    id: "1",
-    title: "2023 BMW 3 Series",
-    price: "$45,999",
-    images: [carSedan, carSedan, carSedan],
-    year: "2023",
-    mileage: "12,000",
-    location: "New York, NY",
-    make: "BMW",
-    model: "3 Series",
-    body: "Sedan",
-    engine: "2.0L Turbo I4",
-    transmission: "8-Speed Automatic",
-    drivetrain: "RWD",
-    fuelType: "Gasoline",
-    mpg: "26/36",
-    exteriorColor: "Mineral White",
-    interiorColor: "Black Leather",
-    vin: "WBA8E1C56NU123456",
-    stockNumber: "BW2023001",
-    description: "This stunning 2023 BMW 3 Series combines luxury with performance. Featuring a turbocharged engine, premium leather interior, and the latest technology including BMW's iDrive system. One owner, clean CarFax, and regularly maintained.",
-    features: [
-      "Premium Leather Seats",
-      "Sunroof",
-      "Navigation System",
-      "Bluetooth Connectivity",
-      "Backup Camera",
-      "Heated Seats",
-      "Keyless Entry",
-      "LED Headlights"
-    ],
-    dealer: {
-      name: "AutoMarket Certified",
-      phone: "(555) 123-4567",
-      email: "sales@automarket.com",
-      rating: 4.8,
-      reviews: 342
-    }
-  };
+  useEffect(() => {
+    const fetchCar = async () => {
+      if (!id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        setCar(data);
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error loading car details",
+          description: error.message,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCar();
+  }, [id, toast]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!car) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold mb-4">Car not found</h1>
+          <p className="text-muted-foreground">The car you're looking for doesn't exist.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,31 +91,19 @@ const CarDetails = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Image Gallery */}
-            <div className="mb-6">
-              <div className="relative">
-                <img 
-                  src={car.images[0]} 
-                  alt={car.title}
-                  className="w-full h-96 object-cover rounded-lg"
-                />
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <Button size="sm" variant="secondary">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="secondary">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                {car.images.slice(1).map((img, index) => (
-                  <img 
-                    key={index}
-                    src={img} 
-                    alt={`${car.title} ${index + 2}`}
-                    className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
-                  />
-                ))}
+            <div className="mb-6 relative">
+              <CarImageGallery 
+                exteriorImages={car.exterior_images || []}
+                interiorImages={car.interior_images || []}
+                carModel={`${car.make} ${car.model}`}
+              />
+              <div className="absolute top-4 right-4 flex gap-2 z-10">
+                <Button size="sm" variant="secondary">
+                  <Heart className="h-4 w-4" />
+                </Button>
+                <Button size="sm" variant="secondary">
+                  <Share2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
@@ -105,8 +111,10 @@ const CarDetails = () => {
             <div className="mb-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-automotive-navy mb-2">{car.title}</h1>
-                  <div className="flex items-center text-muted-foreground gap-4">
+                  <h1 className="text-3xl font-bold text-automotive-navy mb-2">
+                    {car.year} {car.make} {car.model}
+                  </h1>
+                  <div className="flex items-center text-muted-foreground gap-4 flex-wrap">
                     <div className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
                       {car.location}
@@ -117,13 +125,18 @@ const CarDetails = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <Gauge className="h-4 w-4" />
-                      {car.mileage} miles
+                      {car.mileage?.toLocaleString()} miles
                     </div>
+                    <Badge variant={car.type === 'import' ? 'default' : 'secondary'}>
+                      {car.type === 'import' ? 'Import' : 'Local'}
+                    </Badge>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-automotive-navy">{car.price}</div>
-                  <Badge variant="secondary">Great Deal</Badge>
+                  <div className="text-3xl font-bold text-automotive-navy">
+                    ${car.price?.toLocaleString()}
+                  </div>
+                  {car.is_featured && <Badge variant="secondary">Featured</Badge>}
                 </div>
               </div>
             </div>
@@ -143,7 +156,9 @@ const CarDetails = () => {
                     <CardTitle>Vehicle Description</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{car.description}</p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {car.description || 'No description available.'}
+                    </p>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -155,12 +170,16 @@ const CarDetails = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-3">
-                      {car.features.map((feature, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-automotive-navy rounded-full"></div>
-                          <span className="text-sm">{feature}</span>
-                        </div>
-                      ))}
+                      {car.features && car.features.length > 0 ? (
+                        car.features.map((feature: string, index: number) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-automotive-navy rounded-full"></div>
+                            <span className="text-sm">{feature}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-muted-foreground col-span-2">No features listed.</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -184,29 +203,29 @@ const CarDetails = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Body Style</span>
-                          <span className="font-medium">{car.body}</span>
+                          <span className="font-medium">{car.body_type || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Engine</span>
-                          <span className="font-medium">{car.engine}</span>
+                          <span className="text-muted-foreground">Color</span>
+                          <span className="font-medium">{car.color || 'N/A'}</span>
                         </div>
                       </div>
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Transmission</span>
-                          <span className="font-medium">{car.transmission}</span>
+                          <span className="font-medium">{car.transmission || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Drivetrain</span>
-                          <span className="font-medium">{car.drivetrain}</span>
+                          <span className="text-muted-foreground">Type</span>
+                          <span className="font-medium">{car.type === 'import' ? 'Import' : 'Local'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Fuel Type</span>
-                          <span className="font-medium">{car.fuelType}</span>
+                          <span className="font-medium">{car.fuel_type || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">MPG</span>
-                          <span className="font-medium">{car.mpg}</span>
+                          <span className="text-muted-foreground">Mileage</span>
+                          <span className="font-medium">{car.mileage?.toLocaleString() || 'N/A'} miles</span>
                         </div>
                       </div>
                     </div>
@@ -249,27 +268,28 @@ const CarDetails = () => {
             {/* Contact Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Contact Dealer</CardTitle>
-                <CardDescription>{car.dealer.name}</CardDescription>
+                <CardTitle>Contact Seller</CardTitle>
+                <CardDescription>{car.contact_name || 'AutoMarket'}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{car.dealer.rating}</span>
-                  <span className="text-muted-foreground">({car.dealer.reviews} reviews)</span>
-                </div>
-                
                 <div className="space-y-3">
-                  <Button className="w-full bg-automotive-navy hover:bg-automotive-dark">
-                    <Phone className="h-4 w-4 mr-2" />
-                    {car.dealer.phone}
+                  {car.contact_phone && (
+                    <Button className="w-full bg-automotive-navy hover:bg-automotive-dark">
+                      <Phone className="h-4 w-4 mr-2" />
+                      {car.contact_phone}
+                    </Button>
+                  )}
+                  {car.contact_email && (
+                    <Button variant="outline" className="w-full">
+                      <Mail className="h-4 w-4 mr-2" />
+                      {car.contact_email}
+                    </Button>
+                  )}
+                  <Button variant="outline" className="w-full">
+                    Schedule Viewing
                   </Button>
                   <Button variant="outline" className="w-full">
-                    <Mail className="h-4 w-4 mr-2" />
-                    Email Dealer
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    Schedule Test Drive
+                    Request More Info
                   </Button>
                 </div>
               </CardContent>
@@ -282,20 +302,24 @@ const CarDetails = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Stock #</span>
-                  <span className="font-medium">{car.stockNumber}</span>
+                  <span className="text-muted-foreground">Listed</span>
+                  <span className="font-medium">
+                    {new Date(car.created_at).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">VIN</span>
-                  <span className="font-medium text-sm">{car.vin}</span>
+                  <span className="text-muted-foreground">Location</span>
+                  <span className="font-medium">{car.location}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Exterior</span>
-                  <span className="font-medium">{car.exteriorColor}</span>
+                  <span className="text-muted-foreground">Type</span>
+                  <span className="font-medium">
+                    {car.type === 'import' ? 'Import Vehicle' : 'Local Vehicle'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Interior</span>
-                  <span className="font-medium">{car.interiorColor}</span>
+                  <span className="text-muted-foreground">Status</span>
+                  <span className="font-medium">Available</span>
                 </div>
               </CardContent>
             </Card>
