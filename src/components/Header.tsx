@@ -38,28 +38,34 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/cars" className="text-foreground hover:text-automotive-navy transition-colors font-medium">
+            <Link to="/cars" className="text-foreground hover:text-gold-600 transition-colors font-medium relative group">
               Browse Cars
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold-400 to-gold-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/compare" className="text-foreground hover:text-automotive-navy transition-colors font-medium flex items-center gap-1">
+            <Link to="/compare" className="text-foreground hover:text-gold-600 transition-colors font-medium flex items-center gap-1 relative group">
               Compare
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold-400 to-gold-600 transition-all duration-300 group-hover:w-full"></span>
               {comparisonCars.length > 0 && (
                 <span className="bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {comparisonCars.length}
                 </span>
               )}
             </Link>
-            <Link to="/finance" className="text-foreground hover:text-automotive-navy transition-colors font-medium">
+            <Link to="/finance" className="text-foreground hover:text-gold-600 transition-colors font-medium relative group">
               Finance
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold-400 to-gold-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/reviews" className="text-foreground hover:text-automotive-navy transition-colors font-medium">
+            <Link to="/reviews" className="text-foreground hover:text-gold-600 transition-colors font-medium relative group">
               Reviews
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold-400 to-gold-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/about" className="text-foreground hover:text-automotive-navy transition-colors font-medium">
+            <Link to="/about" className="text-foreground hover:text-gold-600 transition-colors font-medium relative group">
               About
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold-400 to-gold-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/contact" className="text-foreground hover:text-automotive-navy transition-colors font-medium">
+            <Link to="/contact" className="text-foreground hover:text-gold-600 transition-colors font-medium relative group">
               Contact
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-gold-400 to-gold-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </nav>
 
@@ -97,8 +103,9 @@ const Header = () => {
               </Button>
             )}
             <Button 
+              variant="premium"
               size="sm" 
-              className="bg-automotive-navy hover:bg-automotive-dark text-xs sm:text-sm px-2 sm:px-3"
+              className="text-xs sm:text-sm px-2 sm:px-3"
               onClick={() => isAuthenticated ? setImportDialogOpen(true) : setAuthDialogOpen(true)}
             >
               <span className="hidden sm:inline">Request Import</span>
@@ -196,7 +203,8 @@ const Header = () => {
                 </Button>
               )}
               <Button 
-                className="w-full bg-automotive-navy hover:bg-automotive-dark"
+                variant="premium"
+                className="w-full"
                 onClick={() => isAuthenticated ? setImportDialogOpen(true) : setAuthDialogOpen(true)}
               >
                 Request Import

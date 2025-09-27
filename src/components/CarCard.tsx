@@ -166,7 +166,7 @@ const CarCard = ({
   };
 
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white border-gray-200 gold-hover-effect">
+    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white border-gray-200 gold-hover-effect hover:border-gold-300">
       <div className="relative overflow-hidden">
         <img 
           src={image} 
@@ -267,7 +267,7 @@ const CarCard = ({
 
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <Link to={`/car/${id}`} className="flex-1">
-            <Button className="w-full bg-automotive-navy hover:bg-automotive-dark text-sm sm:text-base">
+            <Button variant="goldOutline" className="w-full text-sm sm:text-base">
               View Details
             </Button>
           </Link>

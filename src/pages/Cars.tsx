@@ -335,7 +335,7 @@ const Cars = () => {
             />
             
             <div className="flex gap-2">
-              <Button type="submit" onClick={handleSearch}>
+              <Button variant="premium" type="submit" onClick={handleSearch}>
                 Search
               </Button>
               <Button variant="outline" onClick={clearFilters}>
