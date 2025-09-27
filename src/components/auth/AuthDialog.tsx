@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 interface AuthDialogProps {
@@ -24,19 +24,15 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     location: ""
   });
   const { toast } = useToast();
+  const { login, register } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: signInData.email,
-        password: signInData.password,
-      });
-
-      if (error) throw error;
-
+      await login(signInData.email, signInData.password);
+      
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
@@ -46,7 +42,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       toast({
         variant: "destructive",
         title: "Sign in failed",
-        description: error.message,
+        description: error.message || "Invalid email or password",
       });
     } finally {
       setIsLoading(false);
@@ -58,25 +54,13 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     setIsLoading(true);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      await register({
+        full_name: signUpData.fullName,
         email: signUpData.email,
         password: signUpData.password,
+        phone_number: signUpData.phone,
+        location: signUpData.location,
       });
-
-      if (authError) throw authError;
-
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: authData.user.id,
-            full_name: signUpData.fullName,
-            phone: signUpData.phone,
-            location: signUpData.location,
-          });
-
-        if (profileError) throw profileError;
-      }
 
       toast({
         title: "Account created successfully!",
@@ -87,7 +71,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       toast({
         variant: "destructive",
         title: "Sign up failed",
-        description: error.message,
+        description: error.message || "Failed to create account",
       });
     } finally {
       setIsLoading(false);
@@ -98,7 +82,10 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Welcome to AutoMarket</DialogTitle>
+          <DialogTitle>Welcome to Gold Standard Cars</DialogTitle>
+          <DialogDescription>
+            Sign in to your account or create a new one to access all features.
+          </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="signin" className="w-full">

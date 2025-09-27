@@ -2,6 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-specific utilities */
+@layer utilities {
+  /* Touch-friendly interactions */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  /* Prevent text selection on buttons and interactive elements */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Smooth scrolling for mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Mobile-optimized text sizing */
+  .text-mobile-sm {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-mobile-base {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-mobile-lg {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-mobile-xl {
+    @apply text-lg sm:text-xl;
+  }
+  
+  /* Mobile-optimized spacing */
+  .space-mobile {
+    @apply space-y-2 sm:space-y-4;
+  }
+  
+  .gap-mobile {
+    @apply gap-2 sm:gap-4;
+  }
+  
+  /* Mobile-optimized padding */
+  .p-mobile {
+    @apply p-4 sm:p-6;
+  }
+  
+  .px-mobile {
+    @apply px-4 sm:px-6;
+  }
+  
+  .py-mobile {
+    @apply py-4 sm:py-6;
+  }
+  
+  /* Mobile-optimized margins */
+  .m-mobile {
+    @apply m-4 sm:m-6;
+  }
+  
+  .mx-mobile {
+    @apply mx-4 sm:mx-6;
+  }
+  
+  .my-mobile {
+    @apply my-4 sm:my-6;
+  }
+  
+  /* Mobile-optimized grid */
+  .grid-mobile {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+  
+  /* Mobile-optimized flex */
+  .flex-mobile {
+    @apply flex-col sm:flex-row;
+  }
+  
+  /* Mobile-optimized visibility */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+  
+  /* Mobile-optimized button sizes */
+  .btn-mobile {
+    @apply min-h-[44px] px-4 py-2 text-sm sm:text-base;
+  }
+  
+  /* Mobile-optimized input sizes */
+  .input-mobile {
+    @apply h-10 sm:h-11 text-sm sm:text-base;
+  }
+  
+  /* Mobile-optimized card */
+  .card-mobile {
+    @apply rounded-lg sm:rounded-xl p-4 sm:p-6;
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
@@ -120,5 +228,114 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Gold gradient utilities */
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  }
+  
+  .gold-gradient-subtle {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+  }
+  
+  .gold-gradient-border {
+    border-image: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%) 1;
+  }
+  
+  .gold-accent-line {
+    position: relative;
+  }
+  
+  .gold-accent-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #fbbf24 20%, #f59e0b 50%, #fbbf24 80%, transparent 100%);
+  }
+  
+  .gold-accent-line-bottom::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #fbbf24 20%, #f59e0b 50%, #fbbf24 80%, transparent 100%);
+  }
+  
+  .gold-glow {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  }
+  
+  .gold-glow-subtle {
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+  }
+  
+  .gold-text-gradient {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .gold-hover-effect {
+    transition: all 0.3s ease;
+  }
+  
+  .gold-hover-effect:hover {
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Brand logos marquee animation */
+  .brands-marquee {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .brands-track {
+    display: flex;
+    animation: scroll 30s linear infinite;
+    gap: 2rem;
+  }
+
+  .brand-logo {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .brand-logo:hover {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.3);
+    transform: scale(1.05);
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Pause animation on hover */
+  .brands-marquee:hover .brands-track {
+    animation-play-state: paused;
   }
 }

@@ -2,17 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, MapPin } from "lucide-react";
+import HierarchicalSearch from "./HierarchicalSearch";
+import StockLocationFilter from "./StockLocationFilter";
 
 const Hero = () => {
   return (
-    <section className="relative bg-gradient-to-br from-automotive-navy via-automotive-accent to-automotive-dark py-20 lg:py-28">
+    <section className="relative bg-gradient-to-br from-automotive-navy via-automotive-accent to-automotive-dark py-20 lg:py-28 gold-accent-line">
       <div className="absolute inset-0 bg-black/20"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold-500/10 to-transparent"></div>
       
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
             Find Your Perfect
-            <span className="block bg-gradient-to-r from-automotive-silver to-white bg-clip-text text-transparent">
+            <span className="block gold-text-gradient">
               Dream Car
             </span>
           </h1>
@@ -23,36 +26,16 @@ const Hero = () => {
         </div>
 
         {/* Search Form */}
-        <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="max-w-5xl mx-auto bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-2xl gold-glow-subtle">
+          <HierarchicalSearch className="mb-4" />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
+            <StockLocationFilter 
+              className="space-y-2"
+            />
+            
             <Select>
-              <SelectTrigger className="bg-white border-gray-300">
-                <SelectValue placeholder="Make" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="toyota">Toyota</SelectItem>
-                <SelectItem value="honda">Honda</SelectItem>
-                <SelectItem value="ford">Ford</SelectItem>
-                <SelectItem value="bmw">BMW</SelectItem>
-                <SelectItem value="mercedes">Mercedes-Benz</SelectItem>
-                <SelectItem value="audi">Audi</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select>
-              <SelectTrigger className="bg-white border-gray-300">
-                <SelectValue placeholder="Model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any Model</SelectItem>
-                <SelectItem value="camry">Camry</SelectItem>
-                <SelectItem value="accord">Accord</SelectItem>
-                <SelectItem value="f150">F-150</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select>
-              <SelectTrigger className="bg-white border-gray-300">
+              <SelectTrigger className="bg-white border-gray-300 h-10 sm:h-11">
                 <SelectValue placeholder="Price Range" />
               </SelectTrigger>
               <SelectContent>
@@ -63,38 +46,150 @@ const Hero = () => {
               </SelectContent>
             </Select>
 
-            <div className="relative">
+            <div className="relative sm:col-span-2 lg:col-span-1">
               <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input 
                 placeholder="Zip Code" 
-                className="pl-10 bg-white border-gray-300"
+                className="pl-10 bg-white border-gray-300 h-10 sm:h-11"
               />
             </div>
           </div>
 
-          <Button className="w-full bg-automotive-navy hover:bg-automotive-dark text-white py-3 text-lg font-semibold">
-            <Search className="mr-2 h-5 w-5" />
-            Search Cars
-          </Button>
+            <Button className="w-full bg-automotive-navy hover:bg-automotive-dark text-white py-2 sm:py-3 text-base sm:text-lg font-semibold gold-glow-subtle">
+              <Search className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              Search Cars
+            </Button>
         </div>
 
-        {/* Stats */}
-        <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          <div>
-            <div className="text-3xl lg:text-4xl font-bold text-white mb-2">50K+</div>
-            <div className="text-white/80">Cars Available</div>
-          </div>
-          <div>
-            <div className="text-3xl lg:text-4xl font-bold text-white mb-2">15K+</div>
-            <div className="text-white/80">Happy Customers</div>
-          </div>
-          <div>
-            <div className="text-3xl lg:text-4xl font-bold text-white mb-2">500+</div>
-            <div className="text-white/80">Dealers</div>
-          </div>
-          <div>
-            <div className="text-3xl lg:text-4xl font-bold text-white mb-2">24/7</div>
-            <div className="text-white/80">Support</div>
+        {/* Brand Logos Marquee */}
+        <div className="mt-16 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold-500/10 to-transparent"></div>
+          <div className="brands-marquee">
+            <div className="brands-track">
+              {/* First set of brand logos */}
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">TOYOTA</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">BMW</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="12" fontWeight="bold">MERCEDES</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">AUDI</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">HONDA</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">FORD</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">NISSAN</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">HYUNDAI</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">LEXUS</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">PORSCHE</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">VOLVO</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">MAZDA</text>
+                </svg>
+              </div>
+              
+              {/* Duplicate set for seamless loop */}
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">TOYOTA</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">BMW</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="12" fontWeight="bold">MERCEDES</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">AUDI</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">HONDA</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">FORD</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">NISSAN</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">HYUNDAI</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">LEXUS</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">PORSCHE</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="16" fontWeight="bold">VOLVO</text>
+                </svg>
+              </div>
+              <div className="brand-logo">
+                <svg viewBox="0 0 100 40" className="h-8 w-20 fill-white/90 hover:fill-gold-400 transition-colors">
+                  <text x="50" y="25" textAnchor="middle" fontSize="14" fontWeight="bold">MAZDA</text>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -3,6 +3,9 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Award, Users, Zap, Heart, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import CurrencyDemo from "@/components/CurrencyDemo";
+import CurrencyApiTest from "@/components/CurrencyApiTest";
 
 const About = () => {
   const stats = [
@@ -43,7 +46,7 @@ const About = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-automotive-navy mb-6">
-            About AutoMarket
+            About Gold Standard Cars
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             We're revolutionizing the way people buy and sell cars. Since 2008, we've been connecting 
@@ -100,13 +103,23 @@ const About = () => {
           </div>
         </div>
 
+        {/* Currency Demo */}
+        <div className="mb-16">
+          <CurrencyDemo />
+        </div>
+
+        {/* Currency API Test */}
+        <div className="mb-16">
+          <CurrencyApiTest />
+        </div>
+
         {/* Story */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           <div>
             <h2 className="text-3xl font-bold text-automotive-navy mb-6">Our Story</h2>
             <div className="space-y-4 text-muted-foreground">
               <p>
-                AutoMarket was founded in 2008 with a simple vision: to create a better way for people 
+                Gold Standard Cars was founded in 2008 with a simple vision: to create a better way for people 
                 to buy and sell cars. Our founders, experienced automotive professionals, recognized the 
                 need for transparency and trust in the car buying process.
               </p>
@@ -126,7 +139,7 @@ const About = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">2008</CardTitle>
-                <CardDescription>AutoMarket founded</CardDescription>
+                <CardDescription>Gold Standard Cars founded</CardDescription>
               </CardHeader>
             </Card>
             <Card>
@@ -179,18 +192,18 @@ const About = () => {
               Join thousands of satisfied customers who found their dream vehicle with us.
             </p>
             <div className="flex gap-4 justify-center">
-              <a 
-                href="/cars" 
+              <Link 
+                to="/cars" 
                 className="inline-flex items-center justify-center px-6 py-3 bg-automotive-navy text-white rounded-md hover:bg-automotive-dark transition-colors"
               >
                 Browse Cars
-              </a>
-              <a 
-                href="/contact" 
+              </Link>
+              <Link 
+                to="/contact" 
                 className="inline-flex items-center justify-center px-6 py-3 border border-automotive-navy text-automotive-navy rounded-md hover:bg-automotive-navy hover:text-white transition-colors"
               >
                 Contact Us
-              </a>
+              </Link>
             </div>
           </CardContent>
         </Card>

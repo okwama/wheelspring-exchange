@@ -1,19 +1,20 @@
 import { Car, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-automotive-dark text-white">
+    <footer className="bg-automotive-dark text-white gold-accent-line">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
           <div>
             <div className="flex items-center space-x-2 mb-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-automotive-navy to-automotive-accent">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-automotive-navy to-automotive-accent gold-glow-subtle">
                 <Car className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold">AutoMarket</span>
+              <span className="text-2xl font-bold gold-text-gradient">Gold Standard Cars</span>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
               Your trusted partner in finding the perfect vehicle. We connect buyers and sellers with quality cars at fair prices.
@@ -25,7 +26,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center text-gray-300">
                 <Mail className="h-4 w-4 mr-3 text-automotive-accent" />
-                <span>support@automarket.com</span>
+                <span>support@goldstandardcars.com</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <MapPin className="h-4 w-4 mr-3 text-automotive-accent" />
@@ -38,12 +39,13 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Buy a Car</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Sell Your Car</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Car Reviews</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Financing</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Insurance</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Car History Reports</a></li>
+              <li><Link to="/cars" className="text-gray-300 hover:text-white transition-colors">Buy a Car</Link></li>
+              <li><Link to="/sell" className="text-gray-300 hover:text-white transition-colors">Sell Your Car</Link></li>
+              <li><Link to="/reviews" className="text-gray-300 hover:text-white transition-colors">Car Reviews</Link></li>
+              <li><Link to="/finance" className="text-gray-300 hover:text-white transition-colors">Financing</Link></li>
+              <li><Link to="/insurance" className="text-gray-300 hover:text-white transition-colors">Insurance</Link></li>
+              <li><Link to="/car-history" className="text-gray-300 hover:text-white transition-colors">Car History Reports</Link></li>
+              <li><Link to="/account" className="text-gray-300 hover:text-white transition-colors">My Account</Link></li>
             </ul>
           </div>
 
@@ -51,12 +53,12 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-6">Resources</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Car Buying Guide</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Selling Tips</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Car Values</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Maintenance Tips</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Safety Ratings</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Fuel Economy</a></li>
+              <li><Link to="/about" className="text-gray-300 hover:text-white transition-colors">Car Buying Guide</Link></li>
+              <li><Link to="/sell" className="text-gray-300 hover:text-white transition-colors">Selling Tips</Link></li>
+              <li><Link to="/car-values" className="text-gray-300 hover:text-white transition-colors">Car Values</Link></li>
+              <li><Link to="/maintenance-tips" className="text-gray-300 hover:text-white transition-colors">Maintenance Tips</Link></li>
+              <li><Link to="/safety-ratings" className="text-gray-300 hover:text-white transition-colors">Safety Ratings</Link></li>
+              <li><Link to="/fuel-economy" className="text-gray-300 hover:text-white transition-colors">Fuel Economy</Link></li>
             </ul>
           </div>
 
@@ -83,12 +85,12 @@ const Footer = () => {
         <div className="border-t border-white/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-300">
-              © 2024 AutoMarket. All rights reserved.
+              © 2024 Gold Standard Cars. All rights reserved.
             </div>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">Contact Us</a>
+              <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link>
+              <Link to="/terms-of-service" className="text-gray-300 hover:text-white transition-colors">Terms of Service</Link>
+              <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact Us</Link>
             </div>
           </div>
         </div>

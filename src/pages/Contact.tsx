@@ -19,7 +19,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email",
-      details: ["sales@automarket.com", "support@automarket.com"],
+      details: ["sales@goldstandardcars.com", "support@goldstandardcars.com"],
       description: "We'll respond within 24 hours"
     },
     {
