@@ -30,6 +30,8 @@ import ImportRequestDetailPage from "./pages/ImportRequestDetailPage";
 import ContactHistoryPage from "./pages/ContactHistoryPage";
 import FinancingPage from "./pages/FinancingPage";
 import ComparisonPage from "./pages/ComparisonPage";
+import CarUpload from "./pages/admin/CarUpload";
+import CarImageManager from "./pages/admin/CarImageManager";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
 
@@ -93,6 +95,8 @@ const App = () => (
             <Route path="/contact-history" element={<ContactHistoryPage />} />
             <Route path="/financing" element={<FinancingPage />} />
             <Route path="/compare" element={<ComparisonPage />} />
+            <Route path="/admin/car-upload" element={<CarUpload />} />
+          <Route path="/admin/image-manager" element={<CarImageManager />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

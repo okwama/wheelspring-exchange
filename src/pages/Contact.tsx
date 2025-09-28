@@ -7,13 +7,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Phone, Mail, Clock, MessageCircle, HelpCircle, Car } from "lucide-react";
+import { useMemo, useState } from "react";
 
 const Contact = () => {
+  const defaultWhatsAppEnv = (import.meta.env.VITE_DEFAULT_WHATSAPP_PHONE as string) || "";
+  const normalizedWaNumber = useMemo(() => defaultWhatsAppEnv.replace(/\D/g, ""), [defaultWhatsAppEnv]);
+  const displayPhone = defaultWhatsAppEnv || "Set VITE_DEFAULT_WHATSAPP_PHONE";
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [department, setDepartment] = useState<string | undefined>(undefined);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
   const contactInfo = [
     {
       icon: Phone,
       title: "Phone",
-      details: ["Sales: (555) 123-4567", "Support: (555) 123-4568"],
+      details: [
+        `Sales: ${displayPhone}`,
+        `Support: ${displayPhone}`
+      ],
       description: "Mon-Fri 8AM-8PM, Sat-Sun 9AM-6PM"
     },
     {
@@ -42,6 +58,34 @@ const Contact = () => {
     { icon: MessageCircle, name: "General Inquiry", description: "Questions about our services" }
   ];
 
+  const handleSubmitToWhatsApp = () => {
+    const lines = [
+      `Contact Request` ,
+      `Name: ${firstName} ${lastName}`.trim(),
+      `Email: ${email}`,
+      `Phone: ${phone}`,
+      `Department: ${department || "General"}`,
+      `Subject: ${subject}`,
+      `Message: ${message}`,
+    ];
+    const text = lines.filter(Boolean).join("\n");
+    if (!normalizedWaNumber) {
+      alert("WhatsApp number not configured. Set VITE_DEFAULT_WHATSAPP_PHONE.");
+      return;
+    }
+    const waUrl = `https://wa.me/${normalizedWaNumber}?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, "_blank");
+
+    // Clear form fields after sending
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setPhone("");
+    setDepartment(undefined);
+    setSubject("");
+    setMessage("");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -69,28 +113,28 @@ const Contact = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="first-name">First Name</Label>
-                    <Input id="first-name" placeholder="John" />
+                    <Input id="first-name" placeholder="John" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                   </div>
                   <div>
                     <Label htmlFor="last-name">Last Name</Label>
-                    <Input id="last-name" placeholder="Doe" />
+                    <Input id="last-name" placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
+                    <Input id="email" type="email" placeholder="john@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" placeholder="(555) 123-4567" />
+                    <Input id="phone" placeholder="(555) 123-4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="department">Department</Label>
-                  <Select>
+                  <Select value={department} onValueChange={(v) => setDepartment(v)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
@@ -105,7 +149,7 @@ const Contact = () => {
 
                 <div>
                   <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" placeholder="How can we help you?" />
+                  <Input id="subject" placeholder="How can we help you?" value={subject} onChange={(e) => setSubject(e.target.value)} />
                 </div>
 
                 <div>
@@ -114,10 +158,12 @@ const Contact = () => {
                     id="message" 
                     placeholder="Please provide details about your inquiry..."
                     rows={6}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                   />
                 </div>
 
-                <Button size="lg" className="w-full bg-automotive-navy hover:bg-automotive-dark">
+                <Button size="lg" className="w-full bg-automotive-navy hover:bg-automotive-dark" onClick={handleSubmitToWhatsApp}>
                   Send Message
                 </Button>
 
@@ -137,15 +183,24 @@ const Contact = () => {
                 <CardDescription>Need immediate assistance?</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  if (!defaultWhatsAppEnv) return;
+                  window.location.href = `tel:${defaultWhatsAppEnv}`;
+                }}>
                   <Phone className="h-4 w-4 mr-2" />
-                  Call Sales: (555) 123-4567
+                  Call Sales: {displayPhone}
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  if (!normalizedWaNumber) return;
+                  const text = encodeURIComponent("Hello, I need assistance.");
+                  window.open(`https://wa.me/${normalizedWaNumber}?text=${text}`, "_blank");
+                }}>
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Live Chat
+                  WhatsApp Chat
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  window.location.href = `mailto:support@goldstandardcars.com`;
+                }}>
                   <Mail className="h-4 w-4 mr-2" />
                   Email Support
                 </Button>

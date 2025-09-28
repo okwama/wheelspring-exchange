@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { User, Mail, Phone, MapPin, Calendar, LogOut, Edit, Save, X, Heart, Truck, MessageSquare, Shield, Bell, DollarSign, Lock, Eye, EyeOff, Camera } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, LogOut, Edit, Save, X, Heart, Truck, MessageSquare, Shield, Bell, DollarSign, Lock, Eye, EyeOff, Camera, Plus, Settings } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -426,6 +426,39 @@ const AccountPage = () => {
                     Financing & Pre-Approval
                   </Link>
                 </Button>
+
+                {/* Admin Actions - Only for User ID 2 */}
+                {userProfile?.id === 2 && (
+                  <React.Fragment key="admin-section">
+                    <Separator className="my-4" />
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-orange-600 flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Admin Panel
+                      </h4>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start border-orange-200 hover:bg-orange-50"
+                        asChild
+                      >
+                        <Link to="/admin/car-upload">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add New Car
+                        </Link>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start border-orange-200 hover:bg-orange-50"
+                        asChild
+                      >
+                        <Link to="/admin/image-manager">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Manage Car Images
+                        </Link>
+                      </Button>
+                    </div>
+                  </React.Fragment>
+                )}
               </CardContent>
             </Card>
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Play, RotateCcw } from "lucide-react";
@@ -16,8 +16,27 @@ const CarImageGallery = ({ exteriorImages, interiorImages, carModel, exterior360
   const [activeTab, setActiveTab] = useState<"exterior" | "interior">("exterior");
   const [show360, setShow360] = useState<"none" | "exterior" | "interior">("none");
   
-  const currentImages = activeTab === "exterior" ? exteriorImages : interiorImages;
+  const currentImages = activeTab === "exterior" ? (exteriorImages || []) : (interiorImages || []);
   const totalImages = currentImages.length;
+  
+  // Debug: Log when props change (only log once to avoid spam)
+  useEffect(() => {
+    console.log('CarImageGallery Props Changed:', {
+      activeTab,
+      exteriorImagesLength: exteriorImages?.length || 0,
+      interiorImagesLength: interiorImages?.length || 0,
+      currentImagesLength: currentImages?.length || 0,
+      totalImages,
+      currentImageIndex,
+      exterior360: !!exterior360,
+      interior360: !!interior360,
+      carModel
+    });
+  }, [exteriorImages?.length, interiorImages?.length, activeTab]);
+
+  const touchStartX = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const SWIPE_THRESHOLD = 50; // px
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % totalImages);
@@ -27,15 +46,53 @@ const CarImageGallery = ({ exteriorImages, interiorImages, carModel, exterior360
     setCurrentImageIndex((prev) => (prev - 1 + totalImages) % totalImages);
   };
 
+  const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
+    if (show360 !== "none") return;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartTime.current = Date.now();
+  };
+
+  const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = (e) => {
+    if (show360 !== "none") return;
+    if (touchStartX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dt = Date.now() - touchStartTime.current;
+    // simple swipe detection
+    if (Math.abs(dx) > SWIPE_THRESHOLD && dt < 600) {
+      if (dx < 0) nextImage(); else prevImage();
+    }
+    touchStartX.current = null;
+  };
+
   const handleTabChange = (tab: "exterior" | "interior") => {
     setActiveTab(tab);
     setCurrentImageIndex(0);
   };
 
+  // Debug: Log the actual values
+  console.log('Gallery Render Check:', {
+    totalImages,
+    currentImagesLength: currentImages?.length,
+    activeTab,
+    exteriorImagesLength: exteriorImages?.length,
+    interiorImagesLength: interiorImages?.length,
+    currentImages: currentImages?.slice(0, 2) // Show first 2 images for debugging
+  });
+
   if (totalImages === 0) {
     return (
-      <div className="w-full h-96 bg-muted rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">No images available</p>
+      <div className="space-y-4">
+        <div className="flex space-x-2">
+          <Button variant="outline" disabled>
+            Exterior (0)
+          </Button>
+          <Button variant="outline" disabled>
+            Interior (0)
+          </Button>
+        </div>
+        <div className="w-full h-96 bg-muted rounded-lg flex items-center justify-center">
+          <p className="text-muted-foreground">No images available for this car</p>
+        </div>
       </div>
     );
   }
@@ -83,7 +140,7 @@ const CarImageGallery = ({ exteriorImages, interiorImages, carModel, exterior360
       </div>
 
       {/* Main Image Display */}
-      <div className="relative">
+      <div className="relative" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="aspect-video bg-muted rounded-lg overflow-hidden">
           {show360 === "exterior" && exterior360 ? (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
@@ -119,6 +176,7 @@ const CarImageGallery = ({ exteriorImages, interiorImages, carModel, exterior360
             <img
               src={currentImages[currentImageIndex]}
               alt={`${carModel} ${activeTab} view ${currentImageIndex + 1}`}
+              loading="lazy"
               className="w-full h-full object-cover"
             />
           )}
@@ -177,6 +235,7 @@ const CarImageGallery = ({ exteriorImages, interiorImages, carModel, exterior360
               <img
                 src={image}
                 alt={`${carModel} ${activeTab} thumbnail ${index + 1}`}
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             </button>

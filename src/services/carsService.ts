@@ -144,6 +144,9 @@ export interface Brand {
   name: string;
   isActive: boolean;
   categoryId?: number;
+  logo?: string;
+  description?: string;
+  website?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://192.12.34.44:3001/api',
   ENDPOINTS: {
     // Authentication endpoints
     AUTH: {
@@ -96,6 +96,16 @@ const calculateDelay = (attempt: number, baseDelay: number, maxDelay: number): n
 // Sleep function for delays
 const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
+// Helper function to get JWT token from localStorage
+const getAuthToken = (): string | null => {
+  try {
+    return localStorage.getItem('access_token');
+  } catch (error) {
+    console.warn('Failed to get auth token:', error);
+    return null;
+  }
+};
+
 // Helper function to make API requests with timeout and retry logic
 export const apiRequest = async <T>(
   url: string, 
@@ -108,9 +118,14 @@ export const apiRequest = async <T>(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
 
+    // Get auth token and include it in headers if available
+    const token = getAuthToken();
+    const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
+
     const defaultOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...options.headers,
       },
       signal: controller.signal,

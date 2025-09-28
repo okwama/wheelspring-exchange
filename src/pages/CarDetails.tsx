@@ -198,12 +198,12 @@ const CarDetails = () => {
       <Helmet>
         <title>{`${car.year} ${car.brand} ${car.model} | Gold Standard Cars`}</title>
         <meta name="description" content={`${car.year} ${car.brand} ${car.model} - ${car.carCondition || 'Condition'} ${car.mileage ? `| ${car.mileage.toLocaleString()} km` : ''}`} />
-        <link rel="canonical" href={`${window.location.origin}/cars/${car.id}`} />
+        <link rel="canonical" href={`${window.location.origin}/car/${car.id}`} />
         <meta property="og:type" content="product" />
         <meta property="og:title" content={`${car.year} ${car.brand} ${car.model}`} />
         <meta property="og:description" content={`Price: ${car.price > 0 ? '' : 'Request Quote'} ${car.price > 0 ? '' : ''}`} />
         <meta property="og:image" content={(car.exteriorImages && car.exteriorImages[0]) || (car.images && car.images[0]) || ''} />
-        <meta property="og:url" content={`${window.location.origin}/cars/${car.id}`} />
+        <meta property="og:url" content={`${window.location.origin}/car/${car.id}`} />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -480,7 +480,7 @@ const CarDetails = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {similarCars.map(sim => (
-                    <a key={sim.id} href={`/cars/${sim.id}`} className="block border rounded-lg overflow-hidden hover:shadow-sm transition">
+                    <a key={sim.id} href={`/car/${sim.id}`} className="block border rounded-lg overflow-hidden hover:shadow-sm transition">
                       <div className="h-40 bg-gray-100 overflow-hidden">
                         {/* simple image fallback */}
                         {((sim.exteriorImages && sim.exteriorImages[0]) || (sim.images && sim.images[0])) ? (
@@ -507,7 +507,7 @@ const CarDetails = () => {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                   {recentlyViewed.map(rv => (
-                    <a key={rv.id} href={`/cars/${rv.id}`} className="block border rounded-lg overflow-hidden hover:shadow-sm transition">
+                    <a key={rv.id} href={`/car/${rv.id}`} className="block border rounded-lg overflow-hidden hover:shadow-sm transition">
                       <div className="h-28 bg-gray-100 overflow-hidden">
                         {((rv.exteriorImages && rv.exteriorImages[0]) || (rv.images && rv.images[0])) ? (
                           <img src={(rv.exteriorImages && rv.exteriorImages[0]) || (rv.images && rv.images[0])} alt={`${rv.brand} ${rv.model}`} className="w-full h-full object-cover" loading="lazy" />

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -43,6 +43,10 @@ const Cars = () => {
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [allCarsForCounting, setAllCarsForCounting] = useState<Car[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const cacheRef = useRef<Record<string, string[]>>({});
+  const debounceRef = useRef<number | undefined>(undefined);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -75,11 +79,12 @@ const Cars = () => {
 
   // Load brands when category changes
   useEffect(() => {
-    if (selectedCategory) {
-      loadBrands(selectedCategory);
-      setSelectedBrand("");
-      setSelectedModel("");
+    if (!selectedCategory || selectedCategory === "all") {
+      return;
     }
+    loadBrands(selectedCategory);
+    setSelectedBrand("");
+    setSelectedModel("");
   }, [selectedCategory]);
 
   // Load models when brand changes
@@ -93,11 +98,15 @@ const Cars = () => {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [categoriesData] = await Promise.all([
+      const [categoriesData, brandsData, allCarsData] = await Promise.all([
         carsService.getCategories(),
+        carsService.getBrands(),
+        carsService.getAllCars({ limit: 1000, page: 1 }), // Fetch all cars for counting
       ]);
       
       setCategories(categoriesData);
+      setBrands(brandsData);
+      setAllCarsForCounting(allCarsData.cars);
     } catch (err) {
       console.error('Error loading initial data:', err);
       setError('Failed to load initial data');
@@ -191,6 +200,31 @@ const Cars = () => {
     loadCars();
   };
 
+  // Simple debounced suggestions (client-side)
+  useEffect(() => {
+    window.clearTimeout(debounceRef.current);
+    if (!searchTerm) {
+      setSuggestions([]);
+      return;
+    }
+    debounceRef.current = window.setTimeout(async () => {
+      const key = searchTerm.toLowerCase();
+      if (cacheRef.current[key]) {
+        setSuggestions(cacheRef.current[key]);
+        return;
+      }
+      try {
+        const resp = await carsService.getAllCars({ search: searchTerm, limit: 10, page: 1 });
+        const uniq = Array.from(new Set(resp.cars.map(c => `${c.brand} ${c.model}`))).slice(0, 8);
+        cacheRef.current[key] = uniq;
+        setSuggestions(uniq);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 250);
+    return () => window.clearTimeout(debounceRef.current);
+  }, [searchTerm]);
+
   const clearFilters = () => {
     setSelectedCategory("all");
     setSelectedBrand("all");
@@ -225,6 +259,42 @@ const Cars = () => {
     });
   };
 
+  const handleBrandClick = (brandName: string) => {
+    setSelectedBrand(brandName);
+    setSelectedModel("all");
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev as any);
+      if (!brandName || brandName === "all") {
+        params.delete('brand');
+      } else {
+        params.set('brand', brandName);
+      }
+      params.delete('model');
+      return params as any;
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const carsGroupedByModel = useMemo(() => {
+    const groups: Record<string, Car[]> = {};
+    cars.forEach((car) => {
+      const key = car.model || 'Other';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(car);
+    });
+    return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [cars]);
+
+  // Count cars by brand (persistent counts from all cars)
+  const brandCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    allCarsForCounting.forEach((car) => {
+      const brandName = car.brand;
+      counts[brandName] = (counts[brandName] || 0) + 1;
+    });
+    return counts;
+  }, [allCarsForCounting]);
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
@@ -241,6 +311,7 @@ const Cars = () => {
             <p className="text-muted-foreground text-base sm:text-lg">Browse our extensive collection of quality vehicles</p>
           </div>
 
+
         {/* Search and Filters */}
         <div className="bg-card rounded-lg p-4 sm:p-6 mb-6 sm:mb-8 shadow-sm border">
           <form onSubmit={handleSearch} className="mb-4">
@@ -253,6 +324,20 @@ const Cars = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
+              {suggestions.length > 0 && (
+                <div className="absolute z-20 mt-1 w-full bg-white border rounded shadow-sm max-h-60 overflow-auto">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                      onClick={() => setSearchTerm(s)}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
               
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -345,18 +430,78 @@ const Cars = () => {
           </div>
         </div>
 
-        {/* Advanced Filters */}
-        <AdvancedFilters
-          filters={advancedFilters}
-          onFiltersChange={setAdvancedFilters}
-          onClearAll={clearAdvancedFilters}
-          activeFilterCount={
-            Object.values(advancedFilters).filter(value => value !== '').length
-          }
-        />
+        {/* Layout: Sidebar (Makes) + Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Sidebar: Makes (Brands) */}
+          <aside className="lg:col-span-3">
+            <div className="bg-card rounded-lg p-4 shadow-sm border">
+              <h2 className="text-lg font-semibold mb-3">Browse by Make</h2>
+              <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
+                <button
+                  type="button"
+                  className={`w-full text-left px-3 py-2 rounded text-sm flex items-center justify-between ${selectedBrand === 'all' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                  onClick={() => handleBrandClick('all')}
+                >
+                  <span>All Cars</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    selectedBrand === 'all' 
+                      ? 'bg-primary-foreground text-primary' 
+                      : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    {allCarsForCounting.length}
+                  </span>
+                </button>
+                {brands.map((b) => {
+                  const carCount = brandCounts[b.name] || 0;
+                  return (
+                    <button
+                      key={b.id}
+                      type="button"
+                      className={`w-full text-left px-3 py-2 rounded text-sm flex items-center justify-between ${selectedBrand === b.name ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                      onClick={() => handleBrandClick(b.name)}
+                    >
+                      <div className="flex items-center gap-3">
+                        {b.logo && (
+                          <img 
+                            src={b.logo} 
+                            alt={`${b.name} logo`}
+                            className="w-6 h-6 object-contain flex-shrink-0"
+                            onError={(e) => {
+                              // Hide image if it fails to load
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        <span>{b.name}</span>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        selectedBrand === b.name 
+                          ? 'bg-primary-foreground text-primary' 
+                          : 'bg-gray-200 text-gray-600'
+                      }`}>
+                        {carCount}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </aside>
 
-        {/* Results */}
-        <div className="mb-6">
+          {/* Content */}
+          <section className="lg:col-span-9">
+            {/* Advanced Filters */}
+            <AdvancedFilters
+              filters={advancedFilters}
+              onFiltersChange={setAdvancedFilters}
+              onClearAll={clearAdvancedFilters}
+              activeFilterCount={
+                Object.values(advancedFilters).filter(value => value !== '').length
+              }
+            />
+
+            {/* Results */}
+            <div className="mb-6">
           <p className="text-muted-foreground">
             {loading ? (
               <span className="flex items-center gap-2">
@@ -379,53 +524,123 @@ const Cars = () => {
               {error}
             </div>
           )}
-        </div>
+            </div>
 
-        {/* Car Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="bg-card rounded-lg p-4 shadow-sm border animate-pulse">
-                <div className="h-40 sm:h-48 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
-                <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+            {/* Car Grid */}
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="bg-card rounded-lg p-4 shadow-sm border animate-pulse">
+                    <div className="h-48 sm:h-56 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                    <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {cars.map((car) => (
-              <CarCard 
-                key={car.id} 
-                id={car.id.toString()}
-                make={car.brand}
-                model={car.model}
-                variant={car.model}
-                year={car.year}
-                price={car.price}
-                mileage={car.mileage || 0}
-                location="Nairobi, Kenya"
-                image={car.images && car.images.length > 0 ? car.images[0] : '/images/placeholder-car.jpg'}
-                condition={car.carCondition === 'certified' ? 'new' : car.carCondition}
-                fuelType="Petrol"
-                transmission="Automatic"
-                stockType={car.stockType}
-                importStatus={car.importStatus}
-                currency={car.currency}
-                isFavorite={car.isFavorite || false}
-                onFavoriteToggle={(productId: number, isFavorite: boolean) => {
-                  // Update the car's favorite status in the local state
-                  setCars(prevCars => 
-                    prevCars.map(c => 
-                      c.id === productId ? { ...c, isFavorite } : c
-                    )
-                  );
-                }}
-              />
-          ))}
+            ) : selectedBrand !== "all" ? (
+              // Grouped by model when a specific make is selected
+              <div className="space-y-8">
+                {carsGroupedByModel.map(([modelName, modelCars]) => (
+                  <div key={modelName}>
+                    <h3 className="text-xl font-semibold mb-4">{modelName}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {modelCars.map((car) => (
+                        <CarCard
+                          key={car.id}
+                          id={car.id.toString()}
+                          make={car.brand}
+                          model={car.model}
+                          variant={car.model}
+                          year={car.year}
+                          price={car.price}
+                          mileage={car.mileage || 0}
+                          location="Nairobi, Kenya"
+                          image={car.images && car.images.length > 0 ? car.images[0] : '/images/placeholder-car.jpg'}
+                          condition={car.carCondition === 'certified' ? 'new' : car.carCondition}
+                          fuelType="Petrol"
+                          transmission="Automatic"
+                          stockType={car.stockType}
+                          importStatus={car.importStatus}
+                          currency={car.currency}
+                          isFavorite={car.isFavorite || false}
+                          onFavoriteToggle={(productId: number, isFavorite: boolean) => {
+                            setCars(prevCars =>
+                              prevCars.map(c =>
+                                c.id === productId ? { ...c, isFavorite } : c
+                              )
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Mixed format when no specific make is selected (default)
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {cars.map((car) => (
+                  <CarCard
+                    key={car.id}
+                    id={car.id.toString()}
+                    make={car.brand}
+                    model={car.model}
+                    variant={car.model}
+                    year={car.year}
+                    price={car.price}
+                    mileage={car.mileage || 0}
+                    location="Nairobi, Kenya"
+                    image={car.images && car.images.length > 0 ? car.images[0] : '/images/placeholder-car.jpg'}
+                    condition={car.carCondition === 'certified' ? 'new' : car.carCondition}
+                    fuelType="Petrol"
+                    transmission="Automatic"
+                    stockType={car.stockType}
+                    importStatus={car.importStatus}
+                    currency={car.currency}
+                    isFavorite={car.isFavorite || false}
+                    onFavoriteToggle={(productId: number, isFavorite: boolean) => {
+                      setCars(prevCars =>
+                        prevCars.map(c =>
+                          c.id === productId ? { ...c, isFavorite } : c
+                        )
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="flex justify-center mt-8">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    disabled={pagination.page === 1}
+                    onClick={() => {
+                      // Implement pagination
+                    }}
+                  >
+                    Previous
+                  </Button>
+                  <span className="flex items-center px-4">
+                    Page {pagination.page} of {pagination.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    disabled={pagination.page === pagination.totalPages}
+                    onClick={() => {
+                      // Implement pagination
+                    }}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </section>
         </div>
-        )}
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
